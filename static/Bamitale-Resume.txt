@@ -1,0 +1,23 @@
+Bamitale
+Frontend Engineer
+
+Summary
+Builds premium web interfaces with a strong focus on interaction design, accessibility, performance, and maintainable frontend architecture.
+
+Core Skills
+- SvelteKit
+- TypeScript
+- Interaction design
+- Accessibility
+- Performance optimization
+- Design systems
+
+Selected Work
+- Realtime Viz Platform
+- SkillBridge Suite
+- Portfolio OS
+
+Contact
+- Email: hello@yourdomain.dev
+- GitHub: https://github.com/
+- LinkedIn: https://www.linkedin.com/
