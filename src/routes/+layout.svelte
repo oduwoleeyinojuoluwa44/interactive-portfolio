@@ -1,43 +1,45 @@
 <script lang="ts">
-	import './layout.css';
-	import favicon from '../lib/assets/favicon.svg';
-	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
-	import { applyPreferences, motionEnabled, theme } from '../lib/stores/preferences.svelte';
+	import '../app.css';
+	import Header from '$lib/components/Header.svelte';
+	import Footer from '$lib/components/Footer.svelte';
+	import SkipNav from '$lib/components/SkipNav.svelte';
+	import CommandPalette from '$lib/components/CommandPalette.svelte';
+	import { theme } from '$lib/stores/theme.svelte';
+	import { reducedMotion } from '$lib/stores/motion.svelte';
+	import { onNavigate } from '$app/navigation';
 
 	let { children } = $props();
 
-	onMount(() => {
-		applyPreferences();
+	// Re-sync the in-memory stores with whatever the FOUC-prevention script wrote
+	// to the DOM in app.html (which runs before Svelte hydrates).
+	$effect(() => {
+		theme.sync();
+		reducedMotion.sync();
+	});
 
-		if (!browser) {
-			return;
-		}
-
-		const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-		motionEnabled.current = !media.matches;
-
-		const updateMotion = () => {
-			if (!localStorage.getItem('portfolio-motion')) {
-				motionEnabled.current = !media.matches;
-				applyPreferences();
-			}
-		};
-
-		media.addEventListener('change', updateMotion);
-		return () => media.removeEventListener('change', updateMotion);
+	// Cinematic page transitions via the View Transitions API.
+	// Browsers without support skip silently; named elements (e.g. project covers)
+	// crossfade/morph between routes for the grid → detail effect.
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
 	});
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
-		rel="stylesheet"
-	/>
-	<meta name="theme-color" content={theme.current === 'light' ? '#eef4fb' : '#07111f'} />
-</svelte:head>
+<!-- favicon is set in app.html → /favicon.svg (static asset, stable URL) -->
 
-{@render children()}
+<SkipNav />
+<Header />
+
+<main id="main" tabindex="-1" class="focus:outline-none">
+	{@render children()}
+</main>
+
+<Footer />
+
+<CommandPalette />
