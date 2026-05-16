@@ -21,15 +21,16 @@
 	/>
 </svelte:head>
 
-<section class="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-24">
-	<div class="grid gap-16 lg:grid-cols-[1fr_360px]">
-		<!-- Bio -->
-		<div class="to-reveal max-w-2xl" use:reveal>
-			<h1 class="font-display text-5xl font-black tracking-tight sm:text-7xl">
-				Hi — I'm<br /><span class="text-accent">TEO.</span>
+<!-- Full Bleed Container -->
+<div class="border-b-4 border-ink">
+	<section class="grid lg:grid-cols-2">
+		<!-- Left Side: Massive Bio -->
+		<div class="to-reveal border-b-4 border-ink p-6 sm:p-10 lg:border-b-0 lg:border-r-4" use:reveal>
+			<h1 class="font-display text-6xl font-black tracking-tighter uppercase sm:text-8xl md:text-9xl">
+				About<br /><span class="text-accent">TEO.</span>
 			</h1>
 
-			<div class="mt-12 space-y-6 text-lg leading-relaxed text-ink-muted sm:text-xl">
+			<div class="mt-16 space-y-8 text-xl leading-snug text-ink-muted sm:text-2xl">
 				<p>
 					I’m a software engineer working at the intersection of robust backend systems and
 					intuitive frontend interfaces. I specialize in building end-to-end applications that are
@@ -41,71 +42,80 @@
 					best products are built when deep technical knowledge meets a user-centric design
 					philosophy.
 				</p>
-				<p>
-					When I’m not at my terminal, I’m likely researching new technologies, contributing to
-					open-source projects, or looking for ways to bridge the gap between complex data and
-					seamless user experiences.
-				</p>
 			</div>
 
-			<!-- Quick stats -->
-			<dl class="mt-16 grid grid-cols-2 gap-8 border-t-4 border-ink pt-12 sm:grid-cols-4">
+			<!-- Quick stats inside bio block -->
+			<dl class="mt-20 grid grid-cols-2 gap-px border-4 border-ink bg-ink">
 				{#each stats as stat}
-					<div class="flex flex-col gap-1">
+					<div class="bg-bg p-6">
 						<dt class="font-mono text-[10px] tracking-widest text-ink-dim uppercase">
 							{stat.label}
 						</dt>
-						<dd class="font-display font-bold text-ink">{stat.value}</dd>
+						<dd class="mt-2 font-display text-lg font-bold text-ink">{stat.value}</dd>
 					</div>
 				{/each}
 			</dl>
 		</div>
 
-		<!-- Identity sidebar (desktop) -->
-		<aside class="to-reveal hidden lg:block" use:reveal={{ delay: 100 }}>
-			<div class="sticky top-32 space-y-12">
-				<!-- Dynamic shape/color box -->
-				<DynamicBox />
-				<div class="space-y-4">
-					<h2 class="font-mono text-xs tracking-[0.3em] text-ink-dim uppercase">Philosophy</h2>
-					<p class="text-sm leading-relaxed text-ink-muted italic">
-						"Simple is hard. Complex is easy. I strive for the former."
-					</p>
+		<!-- Right Side: Dynamic Visual & Philosophy -->
+		<div class="flex flex-col">
+			<!-- Dynamic Visual Block -->
+			<div class="to-reveal border-b-4 border-ink p-12 lg:flex-1 lg:p-24" use:reveal={{ delay: 100 }}>
+				<div class="mx-auto max-w-sm">
+					<DynamicBox />
 				</div>
 			</div>
-		</aside>
+
+			<!-- Philosophy Block -->
+			<div class="to-reveal bg-surface p-10 sm:p-16 lg:p-20" use:reveal={{ delay: 200 }}>
+				<h2 class="font-mono text-xs tracking-[0.4em] text-ink-dim uppercase">Philosophy</h2>
+				<p class="mt-6 font-display text-3xl font-bold leading-tight italic sm:text-4xl">
+					"Simple is hard. Complex is easy. I strive for the former."
+				</p>
+			</div>
+		</div>
+	</section>
+</div>
+
+<!-- Expertise Section: Dense Grid -->
+<section class="border-b-4 border-ink">
+	<div class="border-b-4 border-ink p-6 sm:p-10">
+		<h2 class="to-reveal font-display text-5xl font-black tracking-tight uppercase" use:reveal>
+			Expertise
+		</h2>
 	</div>
 
-	<!-- Expertise -->
-	<div class="mt-32">
-		<h2 class="to-reveal font-display text-4xl font-black tracking-tight" use:reveal>Expertise</h2>
-		<div class="mt-12 space-y-16">
-			{#each skillCategories as category (category.key)}
-				<div class="to-reveal group space-y-8" use:reveal={{ delay: 50 }}>
-					<h3
-						class="inline-block border-b-4 border-ink pb-1 font-mono text-xs tracking-[0.3em] text-ink-dim uppercase transition-colors group-hover:text-accent"
-					>
+	<div class="grid divide-y-4 divide-ink">
+		{#each skillCategories as category (category.key)}
+			<div class="to-reveal grid lg:grid-cols-[300px_1fr]" use:reveal={{ delay: 50 }}>
+				<!-- Category Label -->
+				<div class="bg-surface p-6 sm:p-10 lg:border-r-4 lg:border-ink">
+					<h3 class="font-mono text-sm font-black tracking-[0.3em] text-ink-muted uppercase">
 						{category.label}
 					</h3>
-					<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-						{#each category.items as skill}
-							<SkillTile {skill} categoryLabel={category.label} />
-						{/each}
-					</div>
 				</div>
-			{/each}
-		</div>
+
+				<!-- Skills Tiles Grid (Seamless) -->
+				<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+					{#each category.items as skill}
+						<div class="border-r-4 border-b-4 border-ink last:border-r-0">
+							<SkillTile {skill} categoryLabel={category.label} />
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/each}
+	</div>
+</section>
+
+<!-- Timeline Section -->
+<section class="p-6 sm:p-10 lg:p-20">
+	<div class="to-reveal mb-20 space-y-4" use:reveal>
+		<h2 class="font-display text-5xl font-black tracking-tight uppercase sm:text-7xl">Timeline</h2>
+		<p class="font-mono text-xs tracking-[0.5em] text-ink-dim uppercase">The Professional Log</p>
 	</div>
 
-	<!-- Timeline -->
-	<div class="mt-40 max-w-3xl">
-		<div class="to-reveal space-y-4" use:reveal>
-			<h2 class="font-display text-4xl font-black tracking-tight">Timeline</h2>
-			<p class="font-mono text-xs tracking-widest text-ink-dim uppercase">The Journey So Far</p>
-		</div>
-
-		<div class="mt-16">
-			<Timeline />
-		</div>
+	<div class="to-reveal mx-auto max-w-4xl" use:reveal={{ delay: 100 }}>
+		<Timeline />
 	</div>
 </section>

@@ -12,17 +12,21 @@
 	/>
 </svelte:head>
 
-<section class="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-24">
-	<!-- Heading -->
-	<div class="to-reveal space-y-4" use:reveal>
-		<p class="font-mono text-xs tracking-[0.3em] text-ink-dim uppercase">
-			Archive · {projectYearRange()}
-		</p>
-		<h1 class="font-display text-6xl font-black tracking-tight sm:text-8xl">Work</h1>
+<section class="border-b-4 border-ink">
+	<!-- Heading Band -->
+	<div class="border-b-4 border-ink p-6 sm:p-10 lg:p-20">
+		<div class="to-reveal space-y-6" use:reveal>
+			<p class="font-mono text-xs tracking-[0.4em] text-ink-dim uppercase">
+				Archive Data · {projectYearRange()}
+			</p>
+			<h1 class="font-display text-7xl font-black tracking-tighter uppercase sm:text-9xl md:text-[12rem]">
+				Work.
+			</h1>
+		</div>
 	</div>
 
-	<!-- Projects -->
-	<div class="mt-20">
+	<!-- Filter & Projects -->
+	<div class="to-reveal" use:reveal={{ delay: 100 }}>
 		<ProjectsGrid />
 	</div>
 </section>

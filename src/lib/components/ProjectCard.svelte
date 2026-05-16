@@ -5,134 +5,72 @@
 	type Props = { project: Project; index: number };
 	let { project, index }: Props = $props();
 
-	// Stable hue per project — used to tint the placeholder cover so each one is distinct.
-	const hue = $derived((project.slug.charCodeAt(0) * 17) % 360);
-	// Resolved enhanced-img picture, or undefined → placeholder renders.
 	const cover = $derived(getCover(project.cover));
+
+	// Random hue for the placeholder gradient (Stage 4 baseline).
+	const h = (index * 137) % 360;
 </script>
 
-<article
-	class="card relative isolate flex h-full flex-col border-4 border-ink bg-surface transition-[transform,box-shadow] duration-200 ease-[var(--ease-snap)]"
+<a
+	href="/work/{project.slug}"
+	class="card relative isolate flex h-full flex-col overflow-hidden bg-bg transition-colors duration-300 hover:bg-surface-raised"
+	aria-label="View project: {project.title}"
 >
-	<!-- Cover. Real image → enhanced-img <picture> (AVIF/WebP/responsive);
-	     missing → styled placeholder.
-	     `view-transition-name` pairs this with the detail page hero cover for a
-	     cinematic morph when navigating from grid → /work/[slug]. -->
-	<div
-		class="cover relative aspect-[16/10] overflow-hidden border-b-4 border-inherit"
-		style="--h: {hue}; view-transition-name: project-cover-{project.slug};"
-		aria-hidden={cover ? undefined : 'true'}
-	>
-		{#if cover}
-			<enhanced:img
-				src={cover}
-				alt={project.coverAlt ?? project.title}
-				class="size-full object-cover transition-transform duration-700 ease-[var(--ease-drift)] group-hover:scale-105"
-				loading="lazy"
-			/>
-		{:else}
-			<!-- Type-driven placeholder: chunky index number + diagonal stripes -->
-			<div class="placeholder absolute inset-0">
-				<span
-					class="absolute right-4 bottom-2 font-display text-[7rem] leading-none font-black tracking-tighter opacity-15 sm:text-[9rem]"
-				>
-					{String(index + 1).padStart(2, '0')}
-				</span>
-				<span
-					class="absolute top-3 left-3 font-mono text-[10px] tracking-[0.25em] uppercase opacity-60"
-				>
-					{categoryLabel[project.category]}
-				</span>
-			</div>
-		{/if}
-	</div>
-
-	<!-- Body -->
-	<div class="flex flex-1 flex-col gap-3 p-5">
-		<div class="flex items-center justify-between gap-3">
-			<span class="font-mono text-[10px] tracking-[0.25em] text-ink-dim uppercase">
-				{categoryLabel[project.category]}
-			</span>
-			<span class="font-mono text-[10px] tracking-[0.2em] text-ink-dim">
-				{project.year}
-			</span>
+	<!-- Massive Side-by-Side on Desktop -->
+	<div class="flex flex-col lg:flex-row lg:items-stretch">
+		<!-- Cover -->
+		<div class="cover relative aspect-video overflow-hidden border-b-4 border-ink lg:aspect-square lg:w-1/2 lg:border-b-0 lg:border-r-4">
+			{#if cover}
+				<enhanced:img
+					src={cover}
+					alt={project.coverAlt ?? project.title}
+					class="size-full object-cover transition-transform duration-700 ease-[var(--ease-drift)] group-hover:scale-110"
+					style="view-transition-name: project-cover-{project.slug}"
+				/>
+			{:else}
+				<div class="placeholder flex size-full items-center justify-center" style="--h: {h}">
+					<span class="font-display text-6xl font-black opacity-10 uppercase">
+						{project.title.charAt(0)}
+					</span>
+				</div>
+			{/if}
 		</div>
 
-		<h2 class="font-display text-2xl font-bold tracking-tight">
-			<!-- The card-wide hit area: pseudo-element extends the link over the whole article. -->
-			<a href="/work/{project.slug}" class="title-link before:absolute before:inset-0 before:z-10">
-				{project.title}
-			</a>
-		</h2>
+		<!-- Info -->
+		<div class="flex flex-col justify-between p-6 sm:p-10 lg:w-1/2">
+			<div class="space-y-4">
+				<div class="flex items-center gap-3 font-mono text-[10px] font-black tracking-widest uppercase text-ink-dim">
+					<span class="text-accent">{categoryLabel[project.category]}</span>
+					<span>/</span>
+					<span>{project.year}</span>
+				</div>
 
-		<p class="text-sm leading-relaxed text-ink-muted">{project.tagline}</p>
+				<h3 class="font-display text-4xl font-black leading-[0.9] tracking-tighter uppercase sm:text-5xl lg:text-6xl">
+					{project.title}
+				</h3>
 
-		<ul class="mt-auto flex flex-wrap gap-1.5 pt-3" aria-label="Tech stack">
-			{#each project.tech.slice(0, 5) as t (t)}
-				<li
-					class="inline-flex border border-border px-2 py-0.5 font-mono text-[10px] tracking-wider text-ink-muted uppercase"
-				>
-					{t}
-				</li>
-			{/each}
-		</ul>
-
-		<!-- External links sit above the cover pseudo-link (z-20). -->
-		{#if project.links.live || project.links.github}
-			<div
-				class="relative z-20 flex items-center gap-3 pt-2 font-mono text-[10px] tracking-[0.25em] uppercase"
-			>
-				{#if project.links.live}
-					<a
-						href={project.links.live}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="inline-flex items-center gap-1 text-ink-muted transition-colors hover:text-accent"
-						aria-label="{project.title} live demo"
-					>
-						<span aria-hidden="true">↗</span> Live
-					</a>
-				{/if}
-				{#if project.links.github}
-					<a
-						href={project.links.github}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="inline-flex items-center gap-1 text-ink-muted transition-colors hover:text-accent"
-						aria-label="{project.title} source on GitHub"
-					>
-						<span aria-hidden="true">↗</span> Code
-					</a>
-				{/if}
+				<p class="max-w-md text-lg leading-snug text-ink-muted">
+					{project.tagline}
+				</p>
 			</div>
-		{/if}
+
+			<div class="mt-8 flex flex-wrap gap-2">
+				{#each project.tech.slice(0, 3) as tech}
+					<span class="border-2 border-ink px-2 py-1 font-mono text-[9px] font-black tracking-tighter uppercase">
+						{tech}
+					</span>
+				{/each}
+			</div>
+		</div>
 	</div>
-</article>
+
+	<!-- Interaction Decoration -->
+	<div class="absolute top-4 right-4 translate-x-12 translate-y-[-12px] rotate-45 bg-accent px-10 py-1 font-mono text-[10px] font-black tracking-widest uppercase text-accent-ink transition-transform duration-300 group-hover:translate-x-8 group-hover:translate-y-[-8px]">
+		Launch
+	</div>
+</a>
 
 <style>
-	/* Hover lift + hard offset shadow — neo-editorial signature interaction. */
-	.card:hover,
-	.card:focus-within {
-		transform: translate(-6px, -6px);
-		box-shadow: 12px 12px 0 0 var(--color-accent);
-	}
-
-	/* Title shifts to accent only when its own link is keyboard-focused or the card is hovered.
-	   Using :has() keeps the JS-free model. */
-	.card:hover .title-link,
-	.card:has(.title-link:focus-visible) .title-link {
-		color: var(--color-accent);
-	}
-	.title-link {
-		color: var(--color-ink);
-		transition: color 0.2s var(--ease-drift);
-		text-decoration: none;
-	}
-	.title-link:focus-visible {
-		outline: none; /* card-level :has() handles the visible state */
-	}
-
-	/* Placeholder cover — diagonal stripes tinted by a per-project hue. */
 	.placeholder {
 		background:
 			repeating-linear-gradient(135deg, transparent 0 14px, oklch(0.5 0.15 var(--h)) 14px 15px),
