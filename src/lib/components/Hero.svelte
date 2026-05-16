@@ -69,6 +69,8 @@
 	});
 </script>
 
+<!-- Sized to its content (+ padding) rather than forced to fill the viewport —
+     avoids the dead vertical space that justify-center used to pad around it. -->
 <section 
 	class="relative isolate overflow-hidden cursor-crosshair"
 	onclick={handleTap}
@@ -79,67 +81,92 @@
 >
 	<HeroBackground {mx} {my} {taps} />
 
-	<div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-20 sm:px-10 sm:py-32 pointer-events-none">
-		<div class="pointer-events-auto grid gap-12 lg:grid-cols-12">
-			
-			<div class="lg:col-span-8">
-				<!-- Status / tagline -->
-				<p class="reveal font-mono text-xs tracking-[0.3em] text-ink-muted uppercase" style="--d: 0ms">
-					<span class="mr-2 inline-block size-1.5 bg-accent align-middle"></span>
-					Available for work · 2026
-				</p>
+	<div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-20 sm:px-10 sm:py-24">
+		<div class="pointer-events-auto">
+			<!-- Status / tagline -->
+			<p class="reveal font-mono text-xs tracking-[0.3em] text-ink-muted uppercase" style="--d: 0ms">
+				<span class="mr-2 inline-block size-1.5 bg-accent align-middle"></span>
+				Available for work · 2026
+			</p>
 
-				<!-- Headline -->
-				<h1
-					class="mt-8 font-display text-6xl leading-[0.9] font-black tracking-tight sm:text-8xl md:text-9xl"
+			<!-- Headline -->
+			<h1
+				class="mt-6 font-display text-5xl leading-[0.95] font-extrabold tracking-tight sm:text-7xl md:text-8xl"
+			>
+				<span class="reveal block" style="--d: 100ms">
+					I'm <span class="text-accent">TEO</span>.
+				</span>
+				<span
+					class="reveal mt-3 block text-3xl font-medium text-ink-muted sm:text-5xl md:text-6xl"
+					style="--d: 220ms"
 				>
-					<span class="reveal block" style="--d: 150ms">
-						Engineering
-					</span>
-					<span class="reveal block text-accent" style="--d: 300ms">
-						Systems.
-					</span>
-				</h1>
+					I'm a Full Stack
+				</span>
+				<span class="reveal block" style="--d: 340ms">
+					Developer.
+				</span>
+			</h1>
 
-				<!-- Intro -->
-				<p class="reveal mt-12 max-w-2xl text-xl leading-relaxed text-ink-muted sm:text-2xl" style="--d: 450ms">
-					I'm <span class="font-bold text-ink">TEO</span>. I build robust, scalable architectures from database to interface, bridging the gap between complex logic and seamless user experiences.
-				</p>
+			<!-- Intro -->
+			<p class="reveal mt-10 max-w-xl text-lg leading-relaxed text-ink-muted" style="--d: 480ms">
+				Building robust, scalable applications from database to interface. Focused on creating seamless digital experiences with modern web technologies like Next.js, Svelte, and Node.js.
+			</p>
+
+			<!-- CTAs -->
+			<div
+				class="reveal mt-10 flex flex-wrap items-center gap-3 font-mono text-xs tracking-[0.2em] uppercase"
+				style="--d: 600ms"
+			>
+				<a
+					href="/work"
+					class="inline-flex items-center gap-2 border-4 border-ink bg-accent px-5 py-3 font-black text-accent-ink transition-[box-shadow,transform] duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+				>
+					<span>See work</span>
+					<span aria-hidden="true">→</span>
+				</a>
+				<a
+					href={resumeUrl}
+					download
+					class="inline-flex items-center gap-2 border-4 border-ink bg-surface px-5 py-3 font-black text-ink transition-[box-shadow,transform] duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
+				>
+					<span aria-hidden="true">↓</span>
+					<span>Resume</span>
+				</a>
 			</div>
 
-			<div class="flex flex-col justify-end gap-10 lg:col-span-4 lg:pb-4">
-				<!-- CTAs -->
-				<div
-					class="reveal flex flex-col gap-4 font-mono text-xs tracking-[0.2em] uppercase"
-					style="--d: 600ms"
-				>
-					<a
-						href="/work"
-						class="inline-flex items-center justify-between border-4 border-ink bg-accent px-6 py-4 font-black text-accent-ink transition-[box-shadow,transform] duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
-					>
-						<span>Browse work</span>
-						<span aria-hidden="true">→</span>
-					</a>
-					<a
-						href={resumeUrl}
-						download
-						class="inline-flex items-center justify-between border-4 border-ink bg-surface px-6 py-4 font-black text-ink transition-[box-shadow,transform] duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard active:translate-x-0 active:translate-y-0 active:shadow-none"
-					>
-						<span>Resume / CV</span>
-						<span aria-hidden="true">↓</span>
-					</a>
-				</div>
-
-				<!-- Socials -->
-				<div class="reveal" style="--d: 750ms">
-					<p class="mb-4 font-mono text-[10px] tracking-widest text-ink-dim uppercase">Connectivity</p>
-					<SocialLinks variant="icon" />
-				</div>
+			<!-- Socials -->
+			<div class="reveal mt-12" style="--d: 720ms">
+				<SocialLinks variant="icon" />
 			</div>
 		</div>
 	</div>
 </section>
 
 <style>
-	/* Custom styling remains the same as it's used globally or for internal elements */
+	/* Highlight word: hand-drawn-ish underbar that pulses subtly */
+	.alive {
+		position: relative;
+		color: var(--color-accent);
+		display: inline-block;
+	}
+	.alive::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0.06em;
+		height: 0.18em;
+		background: var(--color-accent);
+		opacity: 0.25;
+		transform-origin: left;
+		animation: alive-bar 1.2s 1s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+	}
+	@keyframes alive-bar {
+		from {
+			transform: scaleX(0);
+		}
+		to {
+			transform: scaleX(1);
+		}
+	}
 </style>
