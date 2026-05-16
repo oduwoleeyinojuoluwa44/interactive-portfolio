@@ -1,159 +1,142 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import { fade, fly } from 'svelte/transition';
-	import type { Project } from '$lib/data/portfolio';
+	import { categoryLabel, type Project } from '$lib/data/projects';
+	import { getCover } from '$lib/data/covers';
 
-	let { project, featured = false } = $props<{ project: Project; featured?: boolean }>();
+	type Props = { project: Project; index: number };
+	let { project, index }: Props = $props();
+
+	// Stable hue per project — used to tint the placeholder cover so each one is distinct.
+	const hue = $derived((project.slug.charCodeAt(0) * 17) % 360);
+	// Resolved enhanced-img picture, or undefined → placeholder renders.
+	const cover = $derived(getCover(project.cover));
 </script>
 
-<article class:featured class="project-card panel" transition:fade>
-	<div class="media" style={`--project-accent:${project.accent}`}>
-		<img src={project.image} alt={`${project.title} interface preview`} loading="lazy" />
+<article
+	class="card relative isolate flex h-full flex-col border-4 border-ink bg-surface transition-[transform,box-shadow] duration-200 ease-[var(--ease-snap)]"
+>
+	<!-- Cover. Real image → enhanced-img <picture> (AVIF/WebP/responsive);
+	     missing → styled placeholder.
+	     `view-transition-name` pairs this with the detail page hero cover for a
+	     cinematic morph when navigating from grid → /work/[slug]. -->
+	<div
+		class="cover relative aspect-[16/10] overflow-hidden border-b-4 border-inherit"
+		style="--h: {hue}; view-transition-name: project-cover-{project.slug};"
+		aria-hidden={cover ? undefined : 'true'}
+	>
+		{#if cover}
+			<enhanced:img
+				src={cover}
+				alt={project.coverAlt ?? project.title}
+				class="size-full object-cover transition-transform duration-700 ease-[var(--ease-drift)] group-hover:scale-105"
+				loading="lazy"
+			/>
+		{:else}
+			<!-- Type-driven placeholder: chunky index number + diagonal stripes -->
+			<div class="placeholder absolute inset-0">
+				<span
+					class="absolute right-4 bottom-2 font-display text-[7rem] leading-none font-black tracking-tighter opacity-15 sm:text-[9rem]"
+				>
+					{String(index + 1).padStart(2, '0')}
+				</span>
+				<span
+					class="absolute top-3 left-3 font-mono text-[10px] tracking-[0.25em] uppercase opacity-60"
+				>
+					{categoryLabel[project.category]}
+				</span>
+			</div>
+		{/if}
 	</div>
 
-	<div class="content">
-		<div class="meta mono">
-			<span>{project.category}</span>
-			<span>{project.year}</span>
+	<!-- Body -->
+	<div class="flex flex-1 flex-col gap-3 p-5">
+		<div class="flex items-center justify-between gap-3">
+			<span class="font-mono text-[10px] tracking-[0.25em] text-ink-dim uppercase">
+				{categoryLabel[project.category]}
+			</span>
+			<span class="font-mono text-[10px] tracking-[0.2em] text-ink-dim">
+				{project.year}
+			</span>
 		</div>
-		<h3>{project.title}</h3>
-		<p>{project.description}</p>
 
-		<ul class="metrics">
-			{#each project.metrics as metric (metric)}
-				<li transition:fly={{ y: 10, duration: 220 }}>{metric}</li>
+		<h2 class="font-display text-2xl font-bold tracking-tight">
+			<!-- The card-wide hit area: pseudo-element extends the link over the whole article. -->
+			<a href="/work/{project.slug}" class="title-link before:absolute before:inset-0 before:z-10">
+				{project.title}
+			</a>
+		</h2>
+
+		<p class="text-sm leading-relaxed text-ink-muted">{project.tagline}</p>
+
+		<ul class="mt-auto flex flex-wrap gap-1.5 pt-3" aria-label="Tech stack">
+			{#each project.tech.slice(0, 5) as t (t)}
+				<li
+					class="inline-flex border border-border px-2 py-0.5 font-mono text-[10px] tracking-wider text-ink-muted uppercase"
+				>
+					{t}
+				</li>
 			{/each}
 		</ul>
 
-		<div class="stack">
-			{#each project.technologies as technology (technology)}
-				<span>{technology}</span>
-			{/each}
-		</div>
-
-		<div class="links">
-			<a href={resolve('/projects/[slug]', { slug: project.slug })}>Explore case study</a>
-			<button
-				type="button"
-				class="link-button"
-				onclick={() => window.open(project.repoUrl, '_blank', 'noreferrer')}
+		<!-- External links sit above the cover pseudo-link (z-20). -->
+		{#if project.links.live || project.links.github}
+			<div
+				class="relative z-20 flex items-center gap-3 pt-2 font-mono text-[10px] tracking-[0.25em] uppercase"
 			>
-				Repository
-			</button>
-		</div>
+				{#if project.links.live}
+					<a
+						href={project.links.live}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-1 text-ink-muted transition-colors hover:text-accent"
+						aria-label="{project.title} live demo"
+					>
+						<span aria-hidden="true">↗</span> Live
+					</a>
+				{/if}
+				{#if project.links.github}
+					<a
+						href={project.links.github}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-1 text-ink-muted transition-colors hover:text-accent"
+						aria-label="{project.title} source on GitHub"
+					>
+						<span aria-hidden="true">↗</span> Code
+					</a>
+				{/if}
+			</div>
+		{/if}
 	</div>
 </article>
 
 <style>
-	.project-card {
-		display: grid;
-		gap: 1.25rem;
-		padding: 1rem;
-		border-radius: var(--radius-lg);
-		overflow: hidden;
-		height: 100%;
+	/* Hover lift + hard offset shadow — neo-editorial signature interaction. */
+	.card:hover,
+	.card:focus-within {
+		transform: translate(-6px, -6px);
+		box-shadow: 12px 12px 0 0 var(--color-accent);
 	}
 
-	.project-card:hover {
-		transform: translateY(-6px);
+	/* Title shifts to accent only when its own link is keyboard-focused or the card is hovered.
+	   Using :has() keeps the JS-free model. */
+	.card:hover .title-link,
+	.card:has(.title-link:focus-visible) .title-link {
+		color: var(--color-accent);
+	}
+	.title-link {
+		color: var(--color-ink);
+		transition: color 0.2s var(--ease-drift);
+		text-decoration: none;
+	}
+	.title-link:focus-visible {
+		outline: none; /* card-level :has() handles the visible state */
 	}
 
-	.media {
-		position: relative;
-		padding: 1rem;
-		border-radius: calc(var(--radius-lg) - 8px);
+	/* Placeholder cover — diagonal stripes tinted by a per-project hue. */
+	.placeholder {
 		background:
-			radial-gradient(circle at top, var(--project-accent), transparent 42%),
-			linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent), #081120;
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		overflow: hidden;
-		min-height: 220px;
-	}
-
-	img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		border-radius: 18px;
-	}
-
-	.content {
-		display: grid;
-		gap: 1rem;
-		padding: 0.4rem 0.35rem 0.2rem;
-	}
-
-	.meta {
-		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
-		font-size: 0.78rem;
-		text-transform: uppercase;
-		letter-spacing: 0.14em;
-		color: var(--muted);
-	}
-
-	h3 {
-		font-size: clamp(1.5rem, 2vw, 2.15rem);
-		font-weight: 700;
-		letter-spacing: -0.04em;
-	}
-
-	p {
-		line-height: 1.7;
-		color: var(--muted);
-	}
-
-	.metrics,
-	.stack {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.6rem;
-		padding: 0;
-		margin: 0;
-		list-style: none;
-	}
-
-	.metrics li,
-	.stack span {
-		padding: 0.55rem 0.8rem;
-		border-radius: 999px;
-		background: rgba(var(--accent-rgb), 0.09);
-		border: 1px solid var(--line);
-		font-size: 0.88rem;
-	}
-
-	.stack span {
-		background: transparent;
-		color: var(--muted);
-	}
-
-	.links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1rem;
-		margin-top: 0.4rem;
-	}
-
-	.links a {
-		color: var(--accent);
-	}
-
-	.link-button {
-		padding: 0;
-		border: none;
-		background: transparent;
-		color: var(--accent);
-		font: inherit;
-	}
-
-	.featured {
-		grid-column: span 2;
-	}
-
-	@media (max-width: 960px) {
-		.featured {
-			grid-column: span 1;
-		}
+			repeating-linear-gradient(135deg, transparent 0 14px, oklch(0.5 0.15 var(--h)) 14px 15px),
+			linear-gradient(135deg, var(--color-surface-raised), var(--color-surface));
+		opacity: 0.9;
 	}
 </style>
